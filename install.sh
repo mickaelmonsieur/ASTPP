@@ -10,12 +10,12 @@
 # it under the terms of the GNU Affero General Public License as
 # published by the Free Software Foundation, either version 3 of the
 # License, or (at your option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU Affero General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ###############################################################################
@@ -50,7 +50,7 @@ ASTPP_DB_USER="astppuser"
 #################################
 
 #Generate random password
-genpasswd() 
+genpasswd()
 {
 	length=$1
 	digits=({1..9})
@@ -72,7 +72,7 @@ MYSQL_ROOT_PASSWORD=`echo "$(genpasswd 20)" | sed s/./*/5`
 ASTPPUSER_MYSQL_PASSWORD=`echo "$(genpasswd 20)" | sed s/./*/5`
 #Fetch OS Distribution
 get_linux_distribution ()
-{ 
+{
         V1=`cat /etc/*release | head -n1 | tail -n1 | cut -c 14- | cut -c1-18`
         V2=`cat /etc/*release | head -n7 | tail -n1 | cut -c 14- | cut -c1-14`
         if [[ $V1 = "Debian GNU/Linux 9" ]]; then
@@ -99,7 +99,7 @@ install_prerequisties ()
                 systemctl stop apache2
                 systemctl disable apache2
                 apt update
-                apt install -y wget curl git dnsutils ntpdate systemd net-tools whois sendmail-bin sensible-mda mlocate vim
+                apt install -y wget curl git dnsutils ntpdate systemd net-tools whois sendmail-bin sensible-mda mlocate vim lsb-release
         fi
         fi
 }
@@ -131,7 +131,7 @@ license_accept ()
                 fi
                 echo "***"
                 echo "*** I agree to be bound by the terms of the license - [YES/NO]"
-                echo "*** " 
+                echo "*** "
                 read ACCEPT
                 while [ "$ACCEPT" != "yes" ] && [ "$ACCEPT" != "Yes" ] && [ "$ACCEPT" != "YES" ] && [ "$ACCEPT" != "no" ] && [ "$ACCEPT" != "No" ] && [ "$ACCEPT" != "NO" ]; do
                         echo "I agree to be bound by the terms of the license - [YES/NO]"
@@ -153,7 +153,7 @@ install_php ()
 {
         cd /usr/src
         if [ "$DIST" = "DEBIAN" ]; then
-                apt -y install lsb-release apt-transport-https ca-certificates 
+                apt -y install lsb-release apt-transport-https ca-certificates
                 wget -O /etc/apt/trusted.gpg.d/php.gpg https://packages.sury.org/php/apt.gpg
                 echo "deb https://packages.sury.org/php/ $(lsb_release -sc) main" | tee /etc/apt/sources.list.d/php7.3.list
                 apt-get update
@@ -161,7 +161,7 @@ install_php ()
                 systemctl stop apache2
                 systemctl disable apache2
         else if [ "$DIST" = "CENTOS" ]; then
-                yum -y install http://rpms.remirepo.net/enterprise/remi-release-7.rpm 
+                yum -y install http://rpms.remirepo.net/enterprise/remi-release-7.rpm
                 yum -y install epel-release yum-utils
                 yum-config-manager --disable remi-php54
                 yum-config-manager --enable remi-php73
@@ -169,7 +169,7 @@ install_php ()
                 systemctl stop httpd
                 systemctl disable httpd
         fi
-        fi 
+        fi
 }
 
 #Install Mysql
@@ -246,7 +246,8 @@ get_user_response ()
                 echo "Server is behind NAT";
                 NAT="True"
         fi
-        curl --data "email=$EMAIL" --data "data=$NAT2" --data "type=Install" http://astppbilling.org/lib/
+				#RGPD/GDPR not compatible
+        #curl --data "email=$EMAIL" --data "data=$NAT2" --data "type=Install" http://astppbilling.org/lib/
 }
 
 #Install ASTPP with dependencies
@@ -288,7 +289,7 @@ normalize_astpp ()
                 chown -Rf root.root ${ASTPPEXECDIR}
                 chown -Rf www-data.www-data ${WWWDIR}/astpp
 		chown -Rf www-data.www-data ${ASTPP_SOURCE_DIR}/web_interface/astpp
-                chmod -Rf 755 ${WWWDIR}/astpp     
+                chmod -Rf 755 ${WWWDIR}/astpp
                 sed -i "s/;request_terminate_timeout = 0/request_terminate_timeout = 300/" /etc/php/7.3/fpm/pool.d/www.conf
                 sed -i "s#short_open_tag = Off#short_open_tag = On#g" /etc/php/7.3/fpm/php.ini
                 sed -i "s#;cgi.fix_pathinfo=1#cgi.fix_pathinfo=1#g" /etc/php/7.3/fpm/php.ini
@@ -321,7 +322,7 @@ normalize_astpp ()
 		systemctl restart php-fpm
 		CRONPATH='/var/spool/cron/astpp'
         fi
-	echo "# To call all crons   
+	echo "# To call all crons
 		* * * * * cd ${ASTPP_SOURCE_DIR}/web_interface/astpp/cron/ && php cron.php crons
 		" > $CRONPATH
 		chmod 600 $CRONPATH
@@ -458,7 +459,7 @@ install_fail2ban()
                                 echo '[DEFAULT]
 # Ban hosts for one hour:
 bantime = -1
-ignoreip = 127.0.0.0/8 
+ignoreip = 127.0.0.0/8
 # Override /etc/fail2ban/jail.d/00-firewalld.conf:
 banaction = iptables-multiport
 
@@ -565,7 +566,7 @@ bantime  = 7200' >> /etc/fail2ban/jail.local
                                 echo '[DEFAULT]
 # Ban hosts for one hour:
 bantime = -1
-ignoreip = 127.0.0.0/8 
+ignoreip = 127.0.0.0/8
 # Override /etc/fail2ban/jail.d/00-firewalld.conf:
 banaction = iptables-multiport
 
@@ -667,7 +668,7 @@ bantime  = 7200' >> /etc/fail2ban/jail.local
                         else
                         echo ""
                         echo "Fail2ban installation is aborted !"
-                fi   
+                fi
 }
 
 #Install Monit for service monitoring
@@ -723,7 +724,7 @@ check filesystem "root" with path /
     if space usage > 80% for 1 cycles then alert' >> /etc/monit/monitrc
 
 systemctl restart monit
-systemctl enable monit    
+systemctl enable monit
 
 elif [ ${DIST} = "CENTOS" ]; then
 yum install -y monit
@@ -756,7 +757,7 @@ check process freeswitch with pidfile /var/run/freeswitch/freeswitch.pid
 check process nginx with pidfile /var/run/nginx.pid
     start program = "/bin/systemctl start nginx" with timeout 30 seconds
     stop program  = "/bin/systemctl stop nginx"
-    
+
 #-------php-fpm----------------------
 check process php-fpm with pidfile /var/run/php-fpm/php-fpm.pid
     start program = "/bin/systemctl start php-fpm" with timeout 30 seconds
@@ -775,7 +776,7 @@ check system localhost
 check filesystem "root" with path /
     if space usage > 80% for 1 cycles then alert' >> /etc/monitrc
 systemctl restart monit
-systemctl enable monit    
+systemctl enable monit
 fi
 }
 
@@ -791,7 +792,7 @@ if [ ${DIST} = "DEBIAN" ]; then
         sed -i -e 's/weekly/size 30M/g' /etc/logrotate.d/nginx
         sed -i -e 's/rotate 52/rotate 5/g' /etc/logrotate.d/nginx
         sed -i -e 's/weekly/size 30M/g' /etc/logrotate.d/fail2ban
-        sed -i -e 's/weekly/size 30M/g' /etc/logrotate.d/monit    
+        sed -i -e 's/weekly/size 30M/g' /etc/logrotate.d/monit
 elif [ ${DIST} = "CENTOS" ]; then
         sed -i '7 i size 30M' /etc/logrotate.d/syslog
         sed -i '7 i rotate 5' /etc/logrotate.d/syslog
@@ -844,15 +845,15 @@ start_installation ()
         echo "**********                                                                      **********"
         echo "**********           Your ASTPP is installed successfully                       **********"
         echo "                     Browse URL: https://${ASTPP_HOST_DOMAIN_NAME}"
-        echo "                     Username: admin"     
+        echo "                     Username: admin"
         echo "                     Password: admin"
         echo ""
         echo "                     MySQL root user password:"
-        echo "                     ${MYSQL_ROOT_PASSWORD}"                                       
+        echo "                     ${MYSQL_ROOT_PASSWORD}"
         echo ""
         echo "                     MySQL astppuser password:"
-        echo "                     ${ASTPPUSER_MYSQL_PASSWORD}" 
-        echo ""               
+        echo "                     ${ASTPPUSER_MYSQL_PASSWORD}"
+        echo ""
         echo "**********           IMPORTANT NOTE: Please reboot your server once.            **********"
         echo "**********                                                                      **********"
         echo "******************************************************************************************"
@@ -860,4 +861,3 @@ start_installation ()
         echo "******************************************************************************************"
 }
 start_installation
-
